@@ -1,2 +1,0 @@
-# seniorpm
-Created with CodeSandbox
