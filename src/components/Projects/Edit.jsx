@@ -1,6 +1,6 @@
 import React from "react";
 
-const Edit = ({ match }) => (
+const Edit = ({ match, props }) => (
   <div className="d-flex flex-column h-100">
     <h4>{match.params.id ? "Edit" : "Add"} Project</h4>
     <form>
@@ -9,7 +9,7 @@ const Edit = ({ match }) => (
           Name
         </label>
         <input
-          type="email"
+          type="text"
           className="form-control col"
           id="inputName"
           placeholder="Enter project name"

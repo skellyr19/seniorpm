@@ -4,8 +4,8 @@ import { Link } from "react-router-dom";
 export class List extends Component {
   constructor(props) {
     super(props);
-    this.doEdit = this.doEdit.bind(this);
     this.state = {
+      //TODO: Load the project list from the database/api
       projects: [
         { id: 123, name: "Project 1", student: "Jane Doe" },
         { id: 233, name: "Sr. PM App", student: "Ryan Skelly" },
@@ -13,12 +13,6 @@ export class List extends Component {
       ],
       selected: {}
     };
-  }
-
-  doEdit(idx) {
-    this.setState({
-      selected: this.state.projects[idx]
-    });
   }
 
   render() {
