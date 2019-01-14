@@ -1,7 +1,6 @@
-//import Error500 from "./Error500";
 import Nav from "./Nav";
 import Home from "./Home";
-import Project from "./Project";
+import About from "./About";
 import NotFound from "./NotFound";
 
-export { Nav, Home, Project, NotFound };
+export { Nav, Home, About, NotFound };
