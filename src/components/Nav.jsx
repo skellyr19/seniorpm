@@ -2,7 +2,7 @@ import React from "react";
 
 const Nav = () => (
   <nav className="navbar navbar-expand-sm navbar-dark bg-dark">
-    <a className="navbar-brand" href="#">
+    <a className="navbar-brand" href="/">
       PM App
     </a>
     <button

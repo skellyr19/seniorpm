@@ -1,5 +1,5 @@
-import Detail from "./Detail";
-import List from "./List";
-import Edit from "./Edit";
+import ProjectDetail from "./ProjectDetail";
+import ProjectList from "./ProjectList";
+import ProjectEdit from "./ProjectEdit";
 
-export { Detail, List, Edit };
+export { ProjectDetail, ProjectList, ProjectEdit };
