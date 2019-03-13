@@ -1,4 +1,5 @@
 import React from "react";
+import TaskList from "./components/Tasks/TaskList";
 import { Switch, Route } from "react-router-dom";
 import { Nav, Home, About, NotFound } from "./components";
 import { Login, CreateUser } from "./components/Users";
@@ -18,6 +19,7 @@ const Layout = () => (
             <Route exact path={"/project/edit/"} component={ProjectEdit} />
             <Route exact path={"/project/:id"} component={ProjectDetail} />
             <Route exact path={"/project"} component={ProjectList} />
+            <Route exact path={"/task"} component={TaskList} />
             <Route exact path={"/about"} component={About} />
             <Route path={"*"} component={NotFound} />
           </Switch>

@@ -104,6 +104,22 @@ const findRecords = function(tableName, fieldName, fieldValue, view) {
   );
 };
 
+const findRecordsById = function(tableName, fieldName, fieldValue, view) {
+  return new Request(
+    `https://api.airtable.com/v0/${
+      config.base
+    }/${tableName}?view=${view}&filterByFormula=(FIND(("${encodeURIComponent(
+      createParam(fieldValue)
+    )}"),({${fieldName}})))`,
+    {
+      method: "get",
+      headers: new Headers({
+        Authorization: `Bearer ${config.apiKey}`
+      })
+    }
+  );
+};
+
 const incrCounter = function(
   tableName,
   id,
@@ -239,6 +255,7 @@ export default {
   getListView,
   getPagedListView,
   getRecord,
+  findRecordsById,
   findRecords,
   findRecordsByBoolean,
   getChildRecords,
