@@ -11,7 +11,7 @@ export class TaskEdit extends Component {
     this.fetchRecord = this.fetchRecord.bind(this);
     this.modalOK = React.createRef();
     this.state = {
-      project: {}
+      task: {}
     };
   }
 
@@ -30,7 +30,7 @@ export class TaskEdit extends Component {
     if (resp.status >= 200 && resp.status < 300) {
       var projectFields = await resp.json();
       console.log(projectFields);
-      this.setState({ project: projectFields.fields });
+      this.setState({ task: projectFields.fields });
     }
   }
 
@@ -50,21 +50,19 @@ export class TaskEdit extends Component {
       const formData = new FormData(event.target);
 
       // convert formData to json obj
-      var project = {};
+      var task = {};
       formData.forEach(function(value, key) {
-        project[key] = value;
+        task[key] = value;
       });
 
-      this.saveProject({ fields: project });
+      this.saveTask({ fields: task });
     }
   }
 
-  async saveProject(project) {
-    var resp = await fetch(airtable.createRecord("Project", project)).catch(
-      err => {
-        console.log(err);
-      }
-    );
+  async saveTask(task) {
+    var resp = await fetch(airtable.createRecord("Task", task)).catch(err => {
+      console.log(err);
+    });
     //console.log(resp);
     if (resp.status >= 200 && resp.status < 300) {
       console.log(resp);
@@ -75,7 +73,7 @@ export class TaskEdit extends Component {
   render() {
     return (
       <div className="d-flex flex-column h-100">
-        <h4>{this.props.match.params.id ? "Edit" : "Add"} Project</h4>
+        <h4>{this.props.match.params.id ? "Edit" : "Add"} Task</h4>
         <form onSubmit={this.onSubmit} noValidate="" name="formSubmit">
           <div className="form-row py-2">
             <label htmlFor="inputName" className="col-sm-2" required>
@@ -86,8 +84,8 @@ export class TaskEdit extends Component {
               className="form-control col"
               id="inputName"
               name="Name"
-              value={this.state.project.Name}
-              placeholder="Enter project name"
+              value={this.state.task.Name}
+              placeholder="Enter task name"
             />
           </div>
           <div className="form-row py-2">
@@ -97,102 +95,31 @@ export class TaskEdit extends Component {
             <textarea
               className="form-control col"
               id="inputDesc"
-              name="Full"
-              value={this.state.project.Full}
-              placeholder="Enter project description"
+              name="Desc"
+              value={this.state.task.Desc}
+              placeholder="Enter task details"
             />
           </div>
           <div className="form-row py-2">
             <label htmlFor="inputType" className="col-sm-2">
-              Project Type
+              Status
             </label>
             <select
-              className="form-control col"
-              id="inputType"
-              name="ProjectType"
+              className="form-control col mb-2"
+              placeholder="Enter task status..."
+              ref={input => (this.taskStatus = input)}
             >
-              <option value="helping">Helping People / Organization</option>
-              <option value="building">
-                Career-oriented Learning / Building
-              </option>
+              <option>Not Started</option>
+              <option>In Progress</option>
+              <option>Waiting</option>
+              <option>Complete</option>
+              <option>Overdue</option>
             </select>
           </div>
           <div className="form-row py-2">
-            <label htmlFor="inputName" className="col-sm-2" required>
-              Mentor
-            </label>
-            <input
-              type="text"
-              className="form-control col"
-              id="inputName"
-              name="Mentor"
-              value={this.state.project.Mentor}
-              placeholder="Enter mentor's full name"
-            />
-          </div>
-          <div className="form-row py-2 d-none">
-            <label className="col-sm-2">Standard Tasks</label>
-            <div className="col">
-              <small>These are tasks that all seniors must complete</small>
-              <ul className="list-group">
-                <li className="list-group-item">
-                  Project idea proposal
-                  <span className="ml-auto badge badge-success">complete</span>
-                </li>
-                <li className="list-group-item">
-                  Project idea approved
-                  <span className="ml-auto badge badge-success">complete</span>
-                </li>
-                <li className="list-group-item">
-                  Mentor interview
-                  <span className="ml-auto badge badge-success">complete</span>
-                </li>
-                <li className="list-group-item">
-                  Fieldwork hours
-                  <span className="ml-auto badge badge-success">
-                    in-progress
-                  </span>
-                </li>
-                <li className="list-group-item">
-                  <button
-                    type="btuton"
-                    className="btn btn-sm btn-outline-primary"
-                  >
-                    Add Task +
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="form-row py-2 d-none">
-            <label className="col-sm-2">Project Tasks</label>
-            <div className="col">
-              <small>These are custom tasks specific to this project</small>
-              <ul className="list-group">
-                <li className="list-group-item">
-                  Task 1 <span className="badge badge-success">complete</span>
-                </li>
-                <li className="list-group-item">
-                  Task 2 <span className="badge badge-primary">active</span>
-                </li>
-                <li className="list-group-item">
-                  Task 3 <span className="badge badge-primary">active</span>
-                </li>
-                <li className="list-group-item">
-                  Task 4 <span className="badge badge-warning">to do</span>
-                </li>
-                <li className="list-group-item">
-                  <button
-                    type="btuton"
-                    className="btn btn-sm btn-outline-primary"
-                  >
-                    Add Task +
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="form-row py-2">
+            <button type="button" className="btn btn-danger">
+              Delete
+            </button>
             <button type="submit" className="ml-auto btn btn-primary">
               Save
             </button>

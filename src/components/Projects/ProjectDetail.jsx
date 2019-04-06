@@ -2,6 +2,7 @@ import React from "react";
 import { Component } from "react";
 import { Link } from "react-router-dom";
 import airtable from "../../airtable";
+import ModalOK from "../../components/ModalOK";
 
 export class ProjectDetail extends Component {
   constructor(props) {
@@ -10,9 +11,14 @@ export class ProjectDetail extends Component {
     this.fetchTasks = this.fetchTasks.bind(this);
     this.fetchUser = this.fetchUser.bind(this);
     this.addTask = this.addTask.bind(this);
+    this.modalOK = React.createRef();
     this.state = {
       project: {}
     };
+  }
+
+  showModal() {
+    this.modalOK.current.show();
   }
 
   async componentDidMount() {
@@ -75,11 +81,11 @@ export class ProjectDetail extends Component {
   }
 
   async addTask() {
-    // console.log(this.taskName.value);
     var { project } = this.state;
     var newTask = {
       fields: {
         Name: this.taskName.value,
+        Status: this.taskStatus.value,
         Project: [project.fields.RecId]
       }
     };
@@ -88,7 +94,18 @@ export class ProjectDetail extends Component {
         console.log(err);
       }
     );
-    console.log(resp);
+
+    if (resp.status >= 200 && resp.status < 300) {
+      // console.log(resp);
+      this.showModal();
+
+      // reload project and tasks
+      await this.fetchTasks(project);
+      this.setState({ project });
+
+      // clear inputs
+      this.taskName.value = null;
+    }
   }
 
   render() {
@@ -109,20 +126,39 @@ export class ProjectDetail extends Component {
               </span>
             </h5>
             <ul className="list-group py-2">
+              <li className="list-group-item">
+                <div className="row small">
+                  <div className="col-6">Name</div>
+                  <div className="col-2">Status</div>
+                  <div className="col-2">Date Created</div>
+                  <div className="col-auto" />
+                </div>
+              </li>
               {project.fields.Tasks && project.fields.Tasks.length > 0 ? (
                 project.fields.Tasks.map((item, idx) => (
                   <li
                     key={idx}
                     className="list-group-item list-group-item-action d-block py-1"
                   >
-                    {item.fields.Name} -{" "}
-                    {!item.fields.Status ? "Not Started" : item.fields.Status}
-                    <Link
-                      className="ml-2 small btn-link text-success"
-                      to={"task/edit/" + item.id}
-                    >
-                      Edit
-                    </Link>
+                    <div className="row align-items-center">
+                      <div className="col-6">{item.fields.Name}</div>
+                      <div className="col-2">
+                        {!item.fields.Status
+                          ? "Not Started"
+                          : item.fields.Status}
+                      </div>
+                      <div className="col-2 text-truncate">
+                        {new Date(item.fields.DateCreated).toLocaleDateString()}
+                      </div>
+                      <div className="col-auto text-right">
+                        <Link
+                          className="ml-2 small btn btn-success"
+                          to={"../task/edit/" + item.id}
+                        >
+                          Edit
+                        </Link>
+                      </div>
+                    </div>
                   </li>
                 ))
               ) : (
@@ -130,10 +166,21 @@ export class ProjectDetail extends Component {
               )}
               <li className="list-group-item d-inline">
                 <input
-                  className="form-control"
-                  placeholder="Enter task description..."
+                  className="form-control mb-2"
+                  placeholder="Enter task name..."
                   ref={input => (this.taskName = input)}
                 />
+                <select
+                  className="form-control mb-2"
+                  placeholder="Enter task status..."
+                  ref={input => (this.taskStatus = input)}
+                >
+                  <option>Not Started</option>
+                  <option>In Progress</option>
+                  <option>Waiting</option>
+                  <option>Complete</option>
+                  <option>Overdue</option>
+                </select>
                 <button
                   className="btn btn-sm btn-primary"
                   onClick={this.addTask}
@@ -146,6 +193,7 @@ export class ProjectDetail extends Component {
         ) : (
           <p>Loading...</p>
         )}
+        <ModalOK ref={this.modalOK} />
       </div>
     );
   }

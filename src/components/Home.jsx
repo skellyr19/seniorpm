@@ -8,7 +8,9 @@ const Home = () => (
         <img className="img-fluid " src="Images/Me.jpg" />
       </div>
     </div>
-    <p className="text-center">Welcome to the senior project management app!</p>
+    <p className="text-center">
+      Hello... and welcome to the senior project management app!
+    </p>
     <a href="./" className="btn btn-lg btn-primary">
       Login
     </a>

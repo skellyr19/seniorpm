@@ -24,12 +24,13 @@ class ModalOK extends React.Component {
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-body d-block text-center py-3">
-              <h3>Thank you!</h3>
-              <p className="lead">
-                Your submission was successful. Check your email for further
-                correspondence from us.
-              </p>
-              <button className="btn btn-outline-primary" data-dismiss="modal">
+              <h3>Success!</h3>
+              <p className="lead">{this.props.message || "OK it worked."}</p>
+              <button
+                className="btn btn-outline-primary"
+                onClick={this.props.okHandler}
+                data-dismiss="modal"
+              >
                 OK
               </button>
             </div>

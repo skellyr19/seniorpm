@@ -47,24 +47,41 @@ export class ProjectEdit extends Component {
     if (form[0].checkValidity() === false) {
       jquery(form).addClass("was-validated");
     } else {
-      const formData = new FormData(event.target);
-
+      const formData = new FormData(form);
       // convert formData to json obj
+
       var project = {};
       formData.forEach(function(value, key) {
         project[key] = value;
       });
+      project.id = this.props.match.params.id
+        ? this.props.match.params.id
+        : null;
 
-      this.saveProject({ fields: project });
+      this.saveProject(project);
     }
   }
 
-  async saveProject(project) {
-    var resp = await fetch(airtable.createRecord("Project", project)).catch(
-      err => {
+  async saveProject(projectFields) {
+    var resp;
+    if (projectFields.id != null) {
+      //project edit
+      resp = await fetch(
+        airtable.updateRecord("Project", projectFields.id, {
+          fields: projectFields
+        })
+      ).catch(err => {
         console.log(err);
-      }
-    );
+      });
+    } else {
+      //project add
+      resp = await fetch(
+        airtable.createRecord("Project", { fields: projectFields })
+      ).catch(err => {
+        console.log(err);
+      });
+    }
+
     //console.log(resp);
     if (resp.status >= 200 && resp.status < 300) {
       console.log(resp);
@@ -86,7 +103,7 @@ export class ProjectEdit extends Component {
               className="form-control col"
               id="inputName"
               name="Name"
-              value={this.state.project.Name}
+              defaultValue={this.state.project.Name}
               placeholder="Enter project name"
             />
           </div>
@@ -98,7 +115,7 @@ export class ProjectEdit extends Component {
               className="form-control col"
               id="inputDesc"
               name="Full"
-              value={this.state.project.Full}
+              defaultValue={this.state.project.Full}
               placeholder="Enter project description"
             />
           </div>
@@ -110,6 +127,7 @@ export class ProjectEdit extends Component {
               className="form-control col"
               id="inputType"
               name="ProjectType"
+              defaultValue={this.state.project.ProjectType}
             >
               <option value="helping">Helping People / Organization</option>
               <option value="building">
@@ -126,8 +144,9 @@ export class ProjectEdit extends Component {
               className="form-control col"
               id="inputName"
               name="Mentor"
-              value={this.state.project.Mentor}
               placeholder="Enter mentor's full name"
+              defaultValue={this.state.project.Mentor}
+              ref={input => (this.state.project.Mentor = input)}
             />
           </div>
           <div className="form-row py-2 d-none">
@@ -183,7 +202,7 @@ export class ProjectEdit extends Component {
                 </li>
                 <li className="list-group-item">
                   <button
-                    type="btuton"
+                    type="button"
                     className="btn btn-sm btn-outline-primary"
                   >
                     Add Task +
@@ -192,8 +211,11 @@ export class ProjectEdit extends Component {
               </ul>
             </div>
           </div>
-          <div className="form-row py-2">
-            <button type="submit" className="ml-auto btn btn-primary">
+          <div className="form-row d-flex justify-content-end">
+            <button type="button" className="btn btn-danger">
+              Delete
+            </button>
+            <button type="submit" className="ml-1 btn btn-primary">
               Save
             </button>
           </div>

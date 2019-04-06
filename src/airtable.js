@@ -197,7 +197,8 @@ const createRecord = function(tableName, obj) {
 };
 
 const updateRecord = function(tableName, id, obj) {
-  //console.log(tableName);
+  console.log(tableName, id, obj);
+  delete obj.fields.id;
   return new Request(
     `https://api.airtable.com/v0/${config.base}/${tableName}/${id}`,
     {
