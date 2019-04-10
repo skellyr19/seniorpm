@@ -44,14 +44,13 @@ export class CreateUser extends Component {
   }
 
   handleOk() {
-    console.log("here...");
     this.props.history.push("/project/edit");
   }
 
   async saveUser(userFields) {
     var resp;
 
-    console.log(userFields);
+    //console.log(userFields);
 
     if (userFields.id != null) {
       //user edit

@@ -9,6 +9,8 @@ export class TaskEdit extends Component {
     super(props);
     this.onSubmit = this.onSubmit.bind(this);
     this.fetchRecord = this.fetchRecord.bind(this);
+    this.deleteTask = this.deleteTask.bind(this);
+    this.handleChange = this.handleChange.bind(this);
     this.modalOK = React.createRef();
     this.state = {
       task: {}
@@ -23,14 +25,31 @@ export class TaskEdit extends Component {
 
   async fetchRecord(id) {
     //console.log(id);
-    var resp = await fetch(airtable.getRecord("Project", id)).catch(err => {
+    var resp = await fetch(airtable.getRecord("Task", id)).catch(err => {
+      console.log(err);
+    });
+
+    if (resp.status >= 200 && resp.status < 300) {
+      var taskObj = await resp.json();
+      console.log(taskObj);
+      this.setState({
+        task: taskObj.fields,
+        projectId: taskObj.fields.Project[0],
+        taskId: taskObj.id
+      });
+    }
+  }
+
+  async deleteTask() {
+    console.log("delete...", this.state.taskId);
+    var resp = await fetch(
+      airtable.deleteRecord("Task", this.state.taskId)
+    ).catch(err => {
       console.log(err);
     });
     //console.log(resp);
     if (resp.status >= 200 && resp.status < 300) {
-      var projectFields = await resp.json();
-      console.log(projectFields);
-      this.setState({ task: projectFields.fields });
+      this.props.history.push("/project/" + this.state.projectId);
     }
   }
 
@@ -54,19 +73,43 @@ export class TaskEdit extends Component {
       formData.forEach(function(value, key) {
         task[key] = value;
       });
-
-      this.saveTask({ fields: task });
+      task.id = this.props.match.params.id ? this.props.match.params.id : null;
+      this.saveTask(task);
     }
   }
 
-  async saveTask(task) {
-    var resp = await fetch(airtable.createRecord("Task", task)).catch(err => {
-      console.log(err);
+  handleChange(event) {
+    this.setState({
+      task: {
+        ...this.state.task,
+        Desc: event.target.value
+      }
     });
-    //console.log(resp);
+  }
+
+  async saveTask(taskFields) {
+    var resp;
+
+    if (taskFields.id != null) {
+      //task edit
+      resp = await fetch(
+        airtable.updateRecord("Task", taskFields.id, {
+          fields: taskFields
+        })
+      ).catch(err => {
+        console.log(err);
+      });
+    } else {
+      resp = await fetch(airtable.createRecord("Task", taskFields)).catch(
+        err => {
+          console.log(err);
+        }
+      );
+    }
+
     if (resp.status >= 200 && resp.status < 300) {
-      console.log(resp);
-      this.showModal();
+      // after updating task, redirect to project details
+      this.props.history.push("/project/" + this.state.projectId);
     }
   }
 
@@ -84,7 +127,7 @@ export class TaskEdit extends Component {
               className="form-control col"
               id="inputName"
               name="Name"
-              value={this.state.task.Name}
+              defaultValue={this.state.task.Name}
               placeholder="Enter task name"
             />
           </div>
@@ -94,12 +137,12 @@ export class TaskEdit extends Component {
             </label>
             <textarea
               className="form-control col"
-              id="inputDesc"
-              name="Desc"
               value={this.state.task.Desc}
-              placeholder="Enter task details"
+              onChange={this.handleChange}
+              name="Desc"
             />
           </div>
+
           <div className="form-row py-2">
             <label htmlFor="inputType" className="col-sm-2">
               Status
@@ -107,17 +150,33 @@ export class TaskEdit extends Component {
             <select
               className="form-control col mb-2"
               placeholder="Enter task status..."
+              name="Status"
+              defaultValue={this.state.task.Status}
               ref={input => (this.taskStatus = input)}
             >
-              <option>Not Started</option>
-              <option>In Progress</option>
-              <option>Waiting</option>
-              <option>Complete</option>
-              <option>Overdue</option>
+              <option selected={this.state.task.Status === "Not Started"}>
+                Not Started
+              </option>
+              <option selected={this.state.task.Status === "In Progress"}>
+                In Progress
+              </option>
+              <option selected={this.state.task.Status === "Waiting"}>
+                Waiting
+              </option>
+              <option selected={this.state.task.Status === "Complete"}>
+                Complete
+              </option>
+              <option selected={this.state.task.Status === "Overdue"}>
+                Overdue
+              </option>
             </select>
           </div>
           <div className="form-row py-2">
-            <button type="button" className="btn btn-danger">
+            <button
+              type="button"
+              onClick={this.deleteTask}
+              className="btn btn-danger"
+            >
               Delete
             </button>
             <button type="submit" className="ml-auto btn btn-primary">

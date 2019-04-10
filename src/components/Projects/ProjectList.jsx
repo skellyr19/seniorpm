@@ -20,19 +20,18 @@ export class ProjectList extends Component {
   }
   async fetchProjects(pageNo, offset) {
     var _self = this;
-    //if (pageNo===0){
     this.setState({ loading: true });
-    //}
-
     var resp = await fetch(
       airtable.getPagedListView("Project", "Grid view", 12, offset)
     ).catch(err => {
       console.log(err);
     });
     if (resp.status >= 200 && resp.status < 300) {
-      console.log("resp", resp);
+      //console.log("resp", resp);
       var json = await resp.json();
       const projects = json.records;
+
+      console.log("projects", projects);
 
       // append the new items and update state
       this.setState({
@@ -42,10 +41,11 @@ export class ProjectList extends Component {
       });
     }
   }
+
   render() {
     return (
       <div className="d-flex flex-column h-100">
-        <h3>Projects</h3>
+        <h4>All Senior Projects</h4>
         <ul className="list-group py-2">
           {this.state.projects && this.state.projects.length > 0
             ? this.state.projects.map((item, idx) => (
@@ -54,6 +54,11 @@ export class ProjectList extends Component {
                   className="list-group-item list-group-item-action d-block py-1"
                 >
                   <Link to={"project/" + item.id}>{item.fields.Name}</Link>
+                  {item.fields.OwnerName ? (
+                    <span> by {item.fields.OwnerName} </span>
+                  ) : (
+                    ""
+                  )}
                   <Link
                     className="ml-2 small btn-link text-success"
                     to={"project/edit/" + item.id}

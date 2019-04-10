@@ -13,7 +13,11 @@ export class ProjectDetail extends Component {
     this.addTask = this.addTask.bind(this);
     this.modalOK = React.createRef();
     this.state = {
-      project: {}
+      project: {},
+      newTask: {
+        name: null,
+        status: null
+      }
     };
   }
 
@@ -76,7 +80,6 @@ export class ProjectDetail extends Component {
       if (owner.records) {
         Project.fields.Owner = owner.records[0];
       }
-      //this.setState({ Project });
     }
   }
 
@@ -114,11 +117,21 @@ export class ProjectDetail extends Component {
       <div className="d-flex flex-column h-100 pt-2">
         {project && project.fields && project.fields.Name ? (
           <div>
-            <h2>
+            <Link
+              to={"/project/edit/" + project.fields.RecId}
+              className="btn btn-sm btn-outline-primary float-right"
+            >
+              Edit Project
+            </Link>
+            <h3>
               {project.fields.Name} <small>by {project.fields.OwnerName}</small>
-            </h2>
-
-            <p>{project.fields.Full}</p>
+            </h3>
+            <p>
+              {project.fields.Full}
+              {project.fields.Mentor
+                ? " " + project.fields.Mentor + " is my mentor."
+                : ""}
+            </p>
             <h5>
               Tasks
               <span className="ml-1 badge badge-pill badge-primary">
@@ -128,9 +141,9 @@ export class ProjectDetail extends Component {
             <ul className="list-group py-2">
               <li className="list-group-item">
                 <div className="row small">
-                  <div className="col-6">Name</div>
+                  <div className="col-6">Task Name</div>
                   <div className="col-2">Status</div>
-                  <div className="col-2">Date Created</div>
+                  <div className="col-1">Date</div>
                   <div className="col-auto" />
                 </div>
               </li>
@@ -140,19 +153,31 @@ export class ProjectDetail extends Component {
                     key={idx}
                     className="list-group-item list-group-item-action d-block py-1"
                   >
-                    <div className="row align-items-center">
+                    <div className="row flex-nowrap align-items-center">
                       <div className="col-6">{item.fields.Name}</div>
                       <div className="col-2">
-                        {!item.fields.Status
-                          ? "Not Started"
-                          : item.fields.Status}
+                        <span
+                          className={
+                            "badge small " +
+                            (!item.fields.Status ||
+                            item.fields.Status === "Not Started"
+                              ? "badge-success"
+                              : "badge-dark")
+                          }
+                        >
+                          {!item.fields.Status
+                            ? "Not Started"
+                            : item.fields.Status}
+                        </span>
                       </div>
                       <div className="col-2 text-truncate">
-                        {new Date(item.fields.DateCreated).toLocaleDateString()}
+                        {new Date(item.fields.DateCreated).toLocaleDateString(
+                          "en-US"
+                        )}
                       </div>
                       <div className="col-auto text-right">
                         <Link
-                          className="ml-2 small btn btn-success"
+                          className="ml-2 small btn btn-sm btn-success"
                           to={"../task/edit/" + item.id}
                         >
                           Edit
@@ -164,17 +189,20 @@ export class ProjectDetail extends Component {
               ) : (
                 <li className="list-group-item">(No tasks yet...)</li>
               )}
-              <li className="list-group-item d-inline">
+              <li className="list-group-item d-flex flex-ro align-items-center">
                 <input
-                  className="form-control mb-2"
-                  placeholder="Enter task name..."
+                  className="form-control mb-2 mr-2 w-100"
+                  placeholder="New task name..."
+                  required
                   ref={input => (this.taskName = input)}
                 />
                 <select
-                  className="form-control mb-2"
+                  className="form-control mb-2 mr-2 w-100"
                   placeholder="Enter task status..."
+                  required
                   ref={input => (this.taskStatus = input)}
                 >
+                  <option>What is the status?</option>
                   <option>Not Started</option>
                   <option>In Progress</option>
                   <option>Waiting</option>
@@ -182,7 +210,7 @@ export class ProjectDetail extends Component {
                   <option>Overdue</option>
                 </select>
                 <button
-                  className="btn btn-sm btn-primary"
+                  className="btn btn-primary mb-2  w-100"
                   onClick={this.addTask}
                 >
                   Add task

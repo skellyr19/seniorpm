@@ -212,6 +212,20 @@ const updateRecord = function(tableName, id, obj) {
   );
 };
 
+const deleteRecord = function(tableName, id) {
+  console.log(tableName, id);
+  return new Request(
+    `https://api.airtable.com/v0/${config.base}/${tableName}/${id}`,
+    {
+      method: "delete",
+      headers: new Headers({
+        Authorization: `Bearer ${config.apiKey}`,
+        "Content-type": "application/json"
+      })
+    }
+  );
+};
+
 const createOrUpdateRecord = async function(tableName, obj) {
   //console.log("createOrUpdateRecord",tableName);
 
@@ -263,5 +277,6 @@ export default {
   createRecord,
   updateRecord,
   createOrUpdateRecord,
+  deleteRecord,
   incrCounter
 };

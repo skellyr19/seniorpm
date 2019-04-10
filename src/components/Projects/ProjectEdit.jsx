@@ -9,6 +9,7 @@ export class ProjectEdit extends Component {
     super(props);
     this.onSubmit = this.onSubmit.bind(this);
     this.fetchRecord = this.fetchRecord.bind(this);
+    this.handleChange = this.handleChange.bind(this);
     this.modalOK = React.createRef();
     this.state = {
       project: {}
@@ -16,6 +17,10 @@ export class ProjectEdit extends Component {
   }
 
   async componentDidMount() {
+    if (!localStorage.getItem("currentUserId")) {
+      this.props.history.push("/login");
+    }
+
     if (this.props && this.props.match.params.id) {
       await this.fetchRecord(this.props.match.params.id);
     }
@@ -29,9 +34,18 @@ export class ProjectEdit extends Component {
     //console.log(resp);
     if (resp.status >= 200 && resp.status < 300) {
       var projectFields = await resp.json();
-      console.log(projectFields);
+      //console.log(projectFields);
       this.setState({ project: projectFields.fields });
     }
+  }
+
+  handleChange(event) {
+    this.setState({
+      project: {
+        ...this.state.project,
+        [event.target.name]: event.target.value
+      }
+    });
   }
 
   showModal() {
@@ -75,6 +89,7 @@ export class ProjectEdit extends Component {
       });
     } else {
       //project add
+      projectFields.Owner = [localStorage.getItem("currentUserId")];
       resp = await fetch(
         airtable.createRecord("Project", { fields: projectFields })
       ).catch(err => {
@@ -82,10 +97,10 @@ export class ProjectEdit extends Component {
       });
     }
 
-    //console.log(resp);
     if (resp.status >= 200 && resp.status < 300) {
-      console.log(resp);
-      this.showModal();
+      //let newProjectId = await resp.json();
+      var json = await resp.json();
+      this.props.history.push("/project/" + json.id);
     }
   }
 
@@ -113,10 +128,11 @@ export class ProjectEdit extends Component {
             </label>
             <textarea
               className="form-control col"
-              id="inputDesc"
-              name="Full"
-              defaultValue={this.state.project.Full}
               placeholder="Enter project description"
+              value={this.state.project.Full}
+              onChange={this.handleChange}
+              rows="8"
+              name="Full"
             />
           </div>
           <div className="form-row py-2">
@@ -129,9 +145,17 @@ export class ProjectEdit extends Component {
               name="ProjectType"
               defaultValue={this.state.project.ProjectType}
             >
-              <option value="helping">Helping People / Organization</option>
-              <option value="building">
-                Career-oriented Learning / Building
+              <option
+                selected={this.state.project.ProjectType === "helping"}
+                value="helping"
+              >
+                Helping people / organization
+              </option>
+              <option
+                selected={this.state.project.ProjectType === "building"}
+                value="building"
+              >
+                Career-oriented
               </option>
             </select>
           </div>
@@ -146,7 +170,6 @@ export class ProjectEdit extends Component {
               name="Mentor"
               placeholder="Enter mentor's full name"
               defaultValue={this.state.project.Mentor}
-              ref={input => (this.state.project.Mentor = input)}
             />
           </div>
           <div className="form-row py-2 d-none">
@@ -212,15 +235,12 @@ export class ProjectEdit extends Component {
             </div>
           </div>
           <div className="form-row d-flex justify-content-end">
-            <button type="button" className="btn btn-danger">
-              Delete
-            </button>
             <button type="submit" className="ml-1 btn btn-primary">
               Save
             </button>
           </div>
         </form>
-        <ModalOK ref={this.modalOK} />
+        <ModalOK ref={this.modalOK} message="OK, the project was saved." />
       </div>
     );
   }
